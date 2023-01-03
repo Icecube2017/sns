@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*
 import random as rd
 
+
 # 定义一个玩家的数据：从左到右分别是序列号，玩家名，角色名，当前血量，最大生命，攻击，防御，当前行动点，最大行动点，行动点回复，回复机制，手牌数，技能1，技能1CD，技能2，技能2CD，技能3，技能3CD，护盾值，状态
 pldata1 = ['01', '', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, '', -1, '', -1, '', -1, 0]
 pldata2 = ['02', '', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, '', -1, '', -1, '', -1, 0]
@@ -678,7 +679,7 @@ def deleffect(player, effect):
 
 
 # debug区域
-init()
+"""init()
 joingame('Icecube')
 startgame('Icecube', 1)
 choosechara('Icecube', '飖')
@@ -694,3 +695,4 @@ print(gamesequence)
 print(pldata1)
 print(pldata2)
 print(pldata3)
+"""
