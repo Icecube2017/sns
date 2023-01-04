@@ -1,4 +1,4 @@
-import random
+import random, math
 
 from typing import List, Dict
 
@@ -55,12 +55,21 @@ class Player:
 
     def move_init(self) -> None:
         _rt = self.character.regenerate_type
+        _c = self.character
         if _rt == 0:
-            self.character.move_point = self.character.move_regenerate
+            _c.move_point = _c.move_regenerate
         elif _rt == 1:
-            self.character.move_point = 3
+            _c.move_point = 3
         elif _rt == 2:
-            self.character.move_point = self.character.move_regenerate
+            _c.move_point = _c.max_move
+        elif _rt == 3:
+            _c.move_point = math.ceil(float(self.card_count)/2)
+        elif _rt == 4:
+            _c.move_point = _c.max_move
+
+    def count_card(self) -> None:
+        self.card_count = len(self.card)
+        return
 
     def _has_card(self, card: str) -> bool:             # 判断玩家是否持有手牌
         return True if card in self.card else False
@@ -127,6 +136,7 @@ class Game:
         self.character_banned = List[str] = []              # 已使用的角色
 
         self.cancel_ensure: int = 1         # 确认取消对局
+        self.data_temp: dict = {}           # 储存额外数据
 
     def add_player(self, player_name: str):
         self.players[player_name] = Player(
@@ -259,8 +269,20 @@ class Game:
         self.game_status = 1
         return "对局开始！"
 
-    def choose_skill(self, player_name: str):
+    def choose_skill(self, player_name: str) -> str:
         _pl = self.players[player_name]
-        _s = random.choice(self.skill_deck)
-        _pl.skill[_s] = 0
+        _s = ""
+        while not _s and _s not in self.skill_banned:
+            _s, _cd = random.choice(self.skill_deck.items())
+        _pl.skill[_s] = _cd
+        self.skill_banned.append(_s)
+        return _s
 
+    def draw(self, player_name: str, num: int) -> str:
+        _pl = self.players[player_name]
+        _ret = ""
+        for i in range(num):
+            _c = self.deck.pop()
+            _pl.card.append(_c)
+            _pl.count_card()
+            _ret += _c + "\n"

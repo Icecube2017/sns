@@ -23,6 +23,7 @@ except FileNotFoundError:
 
 
 # 群号 + 游戏实例
+# 此处储存了正在进行的对局
 playing_games: Dict[int, Game] = {}
 # 暂时存储对局初始状态和对局最终状态
 game_temp: Dict[str, List[Game]] = {}
@@ -116,7 +117,7 @@ def join_game(gid: int, player_name: str):
 # 开始游戏
 
 
-def start_game(gid: int, player_name: str):
+def start_game(gid: int, player_name: str) -> List[dict]:
     game_now = playing_games[gid]
     if not game_now:
         return "没有对局正在进行哦"
@@ -127,6 +128,6 @@ def start_game(gid: int, player_name: str):
     random.shuffle(game_now.game_sequence)
     for name, player in game_now.players:
         if player.character.id not in SKILL_IGNORE:
-            game_now.choose_skill(player.name)
+            _s1 = game_now.choose_skill(player_name)
+            _s2 = game_now.choose_skill(player_name)
         
-

@@ -16,13 +16,12 @@ def __get_file(file: str, suffix: str) -> str:
 
 # 已字典形式获取别名
 def __get_aliases() -> dict:
-    val = __get_file("alias", "txt")
-    l = val.split(sep="\n")
-    dct: dict = {}
-    for v1 in l:
+    _val = __get_file("alias", "txt").split(sep="\n")
+    _dct: dict = {}
+    for v1 in _val:
         v2 = v1.split(sep=",")
-        dct[v2[0]] = v2[1]
-    return dct
+        _dct[v2[0]] = v2[1]
+    return _dct
 
 
 ALIAS = __get_aliases()
@@ -61,8 +60,12 @@ PROPCARD = __get_propcard_list()
 
 
 # 加载技能卡堆
-def __get_skill_list() -> list:
-    return __get_file("skill", "txt").split()
-
+def __get_skill_list() -> Dict[str, int]:
+    _val = __get_file("skill", "txt").split(sep="\n")
+    _dct: dict = {}
+    for v in _val:
+        v2 = v.split(sep=",")
+        _dct[v2[0]] = int(v2[1])
+    return _dct
 
 SKILL = __get_skill_list()
