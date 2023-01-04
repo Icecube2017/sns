@@ -26,6 +26,8 @@ except FileNotFoundError:
 playing_games: Dict[int, Game] = {}
 # 暂时存储对局初始状态和对局最终状态
 game_temp: Dict[str, List[Game]] = {}
+# 自带技能角色忽略技能抽取
+SKILL_IGNORE = ["黯星", "恋慕", "卿别", "时雨", "敏博士", "赐弥"]
 
 
 # 随机字符串生成器 参数为字符串长度
@@ -41,7 +43,7 @@ def random_string(length:int=4):
 # 新建对局
 def new_game(gid:int, starter:str, starter_qq:int, game_type:int=-1, length:int=4) -> str:
     if playing_games[gid]:
-        return "已有对局准备着中"
+        return "已有对局准备中"
     if type == -1:
         return "还没有指定对局类型哦"
     game_id = time.strftime("%y%m%d-", time.localtime()).join(random_string(length))        # 通过日期和随机字符串确定对局id
@@ -49,6 +51,7 @@ def new_game(gid:int, starter:str, starter_qq:int, game_type:int=-1, length:int=
             game_id=game_id, starter=starter, starter_qq= starter_qq, game_type=game_type,
             character_available=CHARACTER
             )                                                                               # 将游戏实例加入游戏列表
+    playing_games[gid].skill_deck = SKILL
     type_name = {"个人战", "团队战", "Boss战"}[game_type]
     return f"由 %{starter} 发起的 Strife & Strike %{type_name} 开始招募选手了！"
 
@@ -99,3 +102,14 @@ def join_game(gid:int, player_name:str):
     if game_now.game_status == 1:
         return "对局已经开始了哦"
     return game_now.add_player(player_name)
+
+# 开始游戏
+def start_game(gid:int, player_name: str):
+    game_now = playing_games[gid]
+    if not game_now:
+        return "没有对局正在进行哦"
+    ret = ""
+    game_now.deck = PROPCARD
+    random.shuffle(game_now.deck)
+    game_now.game_sequence = [i for i in range(1, game_now.player_count+1)]
+    random.shuffle(game_now.game_sequence)
