@@ -5,7 +5,7 @@ import random
 from pathlib import Path
 from typing import List, Dict
 
-from .assets import ALIAS, CHARACTER
+from .assets import ALIAS, CHARACTER, PROPCARD, SKILL
 from .classes import Player, Character, Team, Boss, Game
 
 
@@ -44,7 +44,7 @@ def new_game(gid:int, starter:str, starter_qq:int, game_type:int=-1, length:int=
         return "已有对局准备着中"
     if type == -1:
         return "还没有指定对局类型哦"
-    game_id = time.strftime("%y%m%d-", time.localtime()).join(random_string(length))        # 通过日期和随机十六进制数确定对局id
+    game_id = time.strftime("%y%m%d-", time.localtime()).join(random_string(length))        # 通过日期和随机字符串确定对局id
     playing_games[gid] = Game(
             game_id=game_id, starter=starter, starter_qq= starter_qq, game_type=game_type,
             character_available=CHARACTER
@@ -99,5 +99,3 @@ def join_game(gid:int, player_name:str):
     if game_now.game_status == 1:
         return "对局已经开始了哦"
     return game_now.add_player(player_name)
-
-# 选择角色

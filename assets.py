@@ -14,6 +14,7 @@ def __get_file(file: str, suffix: str) -> str:
         return f.read()
 
 
+# 已字典形式获取别名
 def __get_aliases() -> dict:
     val = __get_file("alias", "txt")
     l = val.split(sep="\n")
@@ -23,7 +24,7 @@ def __get_aliases() -> dict:
         dct[v2[0]] = v2[1]
     return dct
 
-ALIAS = __get_aliases()         # 获取别名
+ALIAS = __get_aliases()
 
 
 # 以字典形式加载可用角色列表
@@ -39,3 +40,22 @@ def __get_character_list() -> dict:
     return _characters
 
 CHARACTER = __get_character_list()
+
+
+# 加载牌堆
+def __get_propcard_list() -> list:
+    _prop: List[str] = []
+    _f = __get_file("propcard", "txt").split("\n")
+    for _ in _f:
+        _p = _.split(",")
+        _prop.extend(_p[0]*int(_p[1]))
+    return _prop
+
+PROPCARD = __get_propcard_list()
+
+
+# 加载技能卡堆
+def __get_skill_list() -> list:
+    return __get_file("skill", "txt").split()
+
+SKILL = __get_skill_list()
