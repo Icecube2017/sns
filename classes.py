@@ -6,9 +6,9 @@ from typing import List, Dict
 # 定义角色类
 class Character:
     def __init__(
-            self, id:str = "", max_hp:int=0, attack:int=0, defense:int=0,
-            max_move:int=0, move_regenerate:int=0, regenerate_type:int=0, regenerate_turns:int=1
-            ) -> None:
+            self, id: str = "", max_hp: int = 0, attack: int = 0, defense: int = 0,
+            max_move: int = 0, move_regenerate: int = 0, regenerate_type: int = 0, regenerate_turns: int = 1
+    ) -> None:
         self.id = id
         self.hp = max_hp
         self.max_health = max_hp
@@ -18,7 +18,7 @@ class Character:
         self.damage_recieved_total: int = 0
         self.damage_dealed_total: int = 0
 
-        self.move_point:int = 0
+        self.move_point: int = 0
         self.max_move = max_move
         self.move_regenerate = move_regenerate
         self.regenerate_type = regenerate_type
@@ -28,9 +28,9 @@ class Character:
 # 定义玩家类
 class Player:
     def __init__(
-            self, id:int=0, qq:int=0, name:str="", card_count:int=0,
-            skill_1:str="", skill_1_cd:int=0, skill_2:str="", skill_2_cd:int=0, skill_3:str="", skill_3_cd:int=0
-            ) -> None:              # 初始化玩家数据
+            self, id: int = 0, qq: int = 0, name: str = "", card_count: int = 0,
+           # skill_1: str = "", skill_1_cd: int = 0, skill_2: str = "", skill_2_cd: int = 0, skill_3: str = "", skill_3_cd: int = 0
+    ) -> None:              # 初始化玩家数据
         self.id = id                # 玩家编号
         self.name = name            # 玩家昵称
         self.team: int = 0
@@ -38,9 +38,6 @@ class Player:
         self.character: Character = Character()     # 传入角色数据
 
         self.skill: Dict[str, int] = {}
-        self.skill[skill_1] = skill_1_cd
-        self.skill[skill_2] = skill_2_cd
-        self.skill[skill_3] = skill_3_cd
 
         self.status: List[int] = []     # 初始化玩家状态
         self.card_count = card_count    # 玩家手牌数量
@@ -55,7 +52,7 @@ class Player:
             if self.character.move_point > self.character.max_move:
                 self.character.move_point = self.character.max_move
             return f"行动点已回复 %{_move_temp} -> %{self.character.move_point}"
-        
+
     def move_init(self) -> None:
         _rt = self.character.regenerate_type
         if _rt == 0:
@@ -67,11 +64,12 @@ class Player:
 
     def _has_card(self, card: str) -> bool:             # 判断玩家是否持有手牌
         return True if card in self.card else False
-    
+
     def set_character(self, character: Character):      # 设置玩家角色
         self.character = character
         if character.id == "洛尔":
-            self.character.attack = 60 + (random.randint(1, 4) + random.randint(1, 4)) * 5
+            self.character.attack = 60 + \
+                (random.randint(1, 4) + random.randint(1, 4)) * 5
             self.character.defense = 25 + random.randint(1, 6) * 5
         return f"%{self.name} 选择了角色 %{character.id}"
 
@@ -85,19 +83,16 @@ class Team:
 # 定义boss类
 class Boss:
     def __init__(
-            self, max_hp:int=0, attack:int=0, defense:int=0,
-            skill_1:str="", skill_1_cd:int=0, skill_2:str="", skill_2_cd:int=0, skill_3:str="", skill_3_cd:int=0
-            ) -> None:
-        self.name:str = ""
+            self, max_hp: int = 0, attack: int = 0, defense: int = 0,
+           # skill_1: str = "", skill_1_cd: int = 0, skill_2: str = "", skill_2_cd: int = 0, skill_3: str = "", skill_3_cd: int = 0
+    ) -> None:
+        self.name: str = ""
         self.health_point = max_hp
         self.max_health = max_hp
         self.attack = attack
         self.defense = defense
 
         self.skill: Dict[str, int] = {}
-        self.skill[skill_1] = skill_1_cd
-        self.skill[skill_2] = skill_2_cd
-        self.skill[skill_3] = skill_3_cd
 
         self.status: List[int] = []
 
@@ -105,9 +100,9 @@ class Boss:
 # 定义游戏类
 class Game:
     def __init__(
-            self, game_id:str, starter:str, starter_qq:int, game_type:int,
-            deck:List[str]=[], skill_deck: Dict[str, int] =[], character_available: Dict[str, Character] = {}
-            ) -> None:
+            self, game_id: str, starter: str, starter_qq: int, game_type: int,
+            deck: List[str] = [], skill_deck: Dict[str, int] = [], character_available: Dict[str, Character] = {}
+    ) -> None:
         self.game_id = game_id              # 局次id作为每场对局的唯一识别码
         self.starter = starter              # 发起人和qq号
         self.starter_qq = starter_qq
@@ -121,7 +116,7 @@ class Game:
 
         self.players: Dict[str, Player] = {}                # 玩家列表(名字 + 玩家实例)
         self.died: Dict[str, Player] = {}                   # 阵亡列表
-        self.team_count:int = 0             # 队伍数量
+        self.team_count: int = 0             # 队伍数量
         self.teams: Dict[int, Team] = {}    # 队伍id和队伍列表
 
         self.deck = deck                    # 摸牌堆
@@ -134,10 +129,11 @@ class Game:
         self.cancel_ensure: int = 1         # 确认取消对局
 
     def add_player(self, player_name: str):
-        self.players[player_name] = Player(id=self.player_count+1, name=player_name)
+        self.players[player_name] = Player(
+            id=self.player_count+1, name=player_name)
         self.player_count += 1
         return f"%{player_name} 加入了对局 %{self.game_id}\n目前已有 %{self.player_count} 名玩家"
-    
+
     def move_player(self, player_name: str):
         if self.game_status != 0:           # 判断对局是否在准备状态
             return "你现在不能退出哦"
@@ -158,7 +154,7 @@ class Game:
         self.died[player_name] = self.players[player_name]
         self.players.pop(player_name)
         return f"%{player_name} 已阵亡"
-    
+
     def set_character(self, player_name: str, character: str):
         try:
             _player = self.players[player_name]
@@ -169,7 +165,8 @@ class Game:
         if character in self.character_banned:
             return "该角色已被占用/禁用"
         if _player.character.id:                        # 玩家已选择角色时
-            self.character_banned.append(character)     # 禁用玩家当前角色 撤销禁用玩家选择的上一个角色
+            # 禁用玩家当前角色 撤销禁用玩家选择的上一个角色
+            self.character_banned.append(character)
             _ = self.unban_character(_player.character.id)
             return _player.set_character(self.character_available[character]) + _
         else:
@@ -179,12 +176,12 @@ class Game:
     def ban_character(self, character: str):
         self.character_banned.append(character)
         return f"已禁用角色 %{character}"
-    
+
     def unban_character(self, character: str):
         self.character_banned.remove(character)
         return f"%{character} 目前可用"
-    
-    def save(self, is_complete: bool, is_canceled: bool=False):
+
+    def save(self, is_complete: bool, is_canceled: bool = False):
         pass
 
     def quit_team(self, player_name: str):
@@ -206,7 +203,7 @@ class Game:
             ret += f"\n队伍 %{_id} 人数为0 已清除"
         return ret
 
-    def set_team(self, player_name: str, team_id: int=0, to_player: str=""):
+    def set_team(self, player_name: str, team_id: int = 0, to_player: str = ""):
         try:
             _player = self.players[player_name]
         except KeyError:
@@ -240,7 +237,7 @@ class Game:
                 _player.team = team_id
                 _player2.team = team_id
                 return f"%{player_name} 与 %{to_player} 已创建队伍 %{team_id}"
-            
+
     def start_game(self, player_name: str):
         if self.starter_qq != player_name:
             return "你不是对局发起人哦"
@@ -261,7 +258,9 @@ class Game:
                     return "还有玩家没有加入队伍哦"
         self.game_status = 1
         return "对局开始！"
-    
+
     def choose_skill(self, player_name: str):
         _pl = self.players[player_name]
         _s = random.choice(self.skill_deck)
+        _pl.skill[_s] = 0
+
