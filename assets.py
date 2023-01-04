@@ -32,7 +32,7 @@ def __get_character_list() -> dict:
     _characters: Dict[str, Character] = {}
 
     _types: Dict[str, List[int]] =  json.loads(__get_file("character_file", "json"))
-    _regenerate_types: Dict[str, List[int]] = json.loads(__get_file("regenerate_tpye", "json"))
+    _regenerate_types: Dict[str, List[int]] = json.loads(__get_file("regenerate_type", "json"))
     _chs: Dict[str, List[str]] = json.loads(__get_file("character", "json"))
     for ch_id, chv in _chs.items():
         _c_temp = _types[chv[0]].extend(_regenerate_types[chv[1]])
