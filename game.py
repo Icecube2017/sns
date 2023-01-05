@@ -115,18 +115,17 @@ def start_game(gid: int, player_name: str) -> dict:
         game_now = playing_games[gid]
     except KeyError:
         return "当前没有正在进行的对局哦"
-    if player_name != game_now.starter:
-        return 
-    _ret: Dict[str, dict] = {}
-    game_now.deck = PROPCARD
-    random.shuffle(game_now.deck)
-    game_now.game_sequence = [i for i in range(1, game_now.player_count+1)]
-    random.shuffle(game_now.game_sequence)
-    for name, player in game_now.players.items():
-        if player.character.id not in SKILL_IGNORE:
-            _s1 = game_now.choose_skill(name)
-            _s2 = game_now.choose_skill(name)
-        _c = game_now.draw(name, 2)
-        if player.id == game_now.game_sequence[0]:
-            _c += game_now.draw(2)
-        player.move_init()
+    return game_now.start_game(player_name)
+
+
+def play_card(gid: int, player_name: str, *args) -> dict:
+    try:
+        game_now = playing_games[gid]
+    except KeyError:
+        return "当前没有正在进行的对局哦"
+    if game_now.game_status == 0:
+        return "对局还没有开始哦"
+    _pl = game_now.players[player_name]
+    if game_now.game_sequence[game_now.turn-1] != _pl.id:
+        return "现在不是你出牌哦"
+    _card: List[str] = []

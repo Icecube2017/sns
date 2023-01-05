@@ -97,7 +97,7 @@ class Player:
         self.card.remove(card)
         return None
     
-    def character_info(self) -> str:
+    def player_info(self) -> str:
         _c = self.character
         _st = ""
         if not _c.status:
@@ -105,9 +105,13 @@ class Player:
         else:
             for _k, _v in _c.status.items:
                 _st += f"{_k}({_v}) "
-        _ret = f"""{_c.id}({self.name}):  手牌:{self.card_count}
--hp:{_c.hp}({_c.armor})/{_c.max_hp}  atk:{_c.attack}  def:{_c.defense}  mp:{_c.move_point}/{_c.max_move}
--状态:{_st}"""
+        if not self.team:
+            _t = "无"
+        else:
+            _t = self.team
+        _ret = f"""{_c.id}({self.name}):  手牌:{self.card_count}  队伍:{_t}
+  -hp:{_c.hp}({_c.armor})/{_c.max_hp}  atk:{_c.attack}  def:{_c.defense}  mp:{_c.move_point}/{_c.max_move}
+  -状态:{_st}"""
 
 
 # 定义队伍类
@@ -289,34 +293,37 @@ class Game:
         self.skill_banned.append(_s)
         return _s
 
-    def start_game(self, player_name: str):
+    def start_game(self, player_name: str) -> tuple:
         if self.starter_qq != player_name:
-            return "你不是对局发起人哦"
+            return (False, "你不是对局发起人哦")
         if self.player_count < 2:
-            return "玩家人数小于2，不能开启对局"
+            return (False, "玩家人数小于2，不能开启对局")
         if self.game_status == 1:
-            return "对局已经开始啦"
+            return (False, "对局已经开始啦")
         for n, pl in self.players.items():
             if not pl.character:
-                return "还有玩家没选好角色呢"
+                return (False, "还有玩家没选好角色呢")
         if self.game_type == 0:
             pass
         elif self.game_type == 1:
             if self.team_count < 2:
-                return "队伍数量小于2 不能开启对局"
+                return (False, "队伍数量小于2 不能开启对局")
             for n, pl in self.players.items():
                 if not pl.team:
-                    return "还有玩家没有加入队伍哦"
+                    return (False, "还有玩家没有加入队伍哦")
         self.game_status = 1
-        return "对局开始！"
+        self.round = 1
+        self.turn = 1
+        return (True, self._init_game())
     
     
-    def init_game(self):
-        _ret: Dict[str, Dict[int, Dict[str, str]]] = {"group":{}, "player":{}}
+    def _init_game(self):
+        _ret: Dict[str, dict] = {"group":"", "player":{}}
         self.deck = PROPCARD
         random.shuffle(self.deck)
         self.game_sequence = [i for i in range(1, self.player_count+1)]
         random.shuffle(self.game_sequence)
+        _ret["group"] += "战斗开始！出牌顺序如下——"
         for name, player in self.players.items():
             if player.character.id not in [k for k, v in SKILL_EXCLUSIVE.items()]:
                 _s1, _s2 = self.choose_skill(name), self.choose_skill(name)
@@ -330,6 +337,11 @@ class Game:
                 _c2 = self.draw(name, 2)
                 _ret["player"][player.qq]["card"] += _c2
             player.move_init()
+        for i in self.game_sequence:
+            for pl in self.players.values():
+                if i == pl.id:
+                    _ret["group"] += f"\n{pl.player_info()}"
+        return _ret
 
 
     def draw(self, player_name: str, num: int) -> str:
@@ -341,4 +353,13 @@ class Game:
             _pl.count_card()
             _ret += _c + " "
         return _ret
+    
+    def recall(self, card: str):
+        self.discard.append(card)
+        return
 
+    def recharge(self):
+        random.shuffle(self.discard)
+        self.deck.extend(self.discard)
+        self.discard.clear()
+        return
