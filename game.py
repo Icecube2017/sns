@@ -12,7 +12,7 @@ from .classes import Player, Character, Team, Boss, Game
 # 初始化游戏存档系统，记录已经进行/正在进行的游戏局次
 game_history: List[int, Dict[int, List[str]]] = [0, {0: ["000000-0000"]}]       # [已经进行/正在进行/中途取消的游戏场数, 群号:[局次id]]
 
-saves_path = Path(__file__).parent /"saves"                                     # 定义存档目录
+saves_path = Path(__file__).parent / "saves"                                     # 定义存档目录
 
 try:                                                                            # 读取/新建游戏局次列表
     with open(saves_path / "saves.pkl", mode="rb") as _temp:
@@ -48,25 +48,21 @@ def new_game(gid: int, starter: str, starter_qq: int, game_type: int = -1, lengt
         return "已有对局准备中"
     if type == -1:
         return "还没有指定对局类型哦"
-    game_id = time.strftime("%y%m%d-", time.localtime()
-                            ).join(random_string(length))        # 通过日期和随机字符串确定对局id
+    game_id = "{t}-{s}".format(t=time.strftime("%y%m%d", time.localtime()), s=random_string(length))      # 通过日期和随机字符串确定对局id
     playing_games[gid] = Game(
-        game_id=game_id, starter=starter, starter_qq=starter_qq, game_type=game_type,
-        character_available=CHARACTER
-    )                                                                               # 将游戏实例加入游戏列表
+        game_id=game_id, starter=starter, starter_qq=starter_qq, game_type=game_type)                     # 将游戏实例加入游戏列表
+    playing_games[gid].character_available = CHARACTER
     playing_games[gid].skill_deck = SKILL
     type_name = {"个人战", "团队战", "Boss战"}[game_type]
     return f"由 %{starter} 发起的 Strife & Strike %{type_name} 开始招募选手了！"
 
+
 # 保存对局状态及对局过程日志
-
-
 def save_game(id: str, is_complete: bool, is_canceled: bool = False):
     pass
 
+
 # 取消未开始的/正在进行的对局
-
-
 def cancel_game(gid: int, sender_qq: str) -> str:
     game_now = playing_games[gid]
     if not game_now:                                                                        # 是否有对局在对局列表中
@@ -87,9 +83,8 @@ def cancel_game(gid: int, sender_qq: str) -> str:
             playing_games.pop(gid)
             return f"对局 %{game_now.game_id} 取消成功，存档和记录已保存"
 
+
 # 暂停对局 将状态储存至本地
-
-
 def pause_game(gid: int, sender_qq: str) -> str:
     game_now = playing_games[gid]
     if not game_now:
@@ -103,9 +98,8 @@ def pause_game(gid: int, sender_qq: str) -> str:
     save_game(game_now.game_id, False)
     return f"对局 %{game_now.game_id} 暂停成功"
 
+
 # 加入群内对局
-
-
 def join_game(gid: int, player_name: str):
     game_now = playing_games[gid]
     if not game_now:
@@ -114,20 +108,25 @@ def join_game(gid: int, player_name: str):
         return "对局已经开始了哦"
     return game_now.add_player(player_name)
 
+
 # 开始游戏
-
-
-def start_game(gid: int, player_name: str) -> List[dict]:
-    game_now = playing_games[gid]
-    if not game_now:
-        return "没有对局正在进行哦"
-    ret = ""
+def start_game(gid: int, player_name: str) -> dict:
+    try:
+        game_now = playing_games[gid]
+    except KeyError:
+        return "当前没有正在进行的对局哦"
+    if player_name != game_now.starter:
+        return 
+    _ret: Dict[str, dict] = {}
     game_now.deck = PROPCARD
     random.shuffle(game_now.deck)
     game_now.game_sequence = [i for i in range(1, game_now.player_count+1)]
     random.shuffle(game_now.game_sequence)
-    for name, player in game_now.players:
+    for name, player in game_now.players.items():
         if player.character.id not in SKILL_IGNORE:
-            _s1 = game_now.choose_skill(player_name)
-            _s2 = game_now.choose_skill(player_name)
-        
+            _s1 = game_now.choose_skill(name)
+            _s2 = game_now.choose_skill(name)
+        _c = game_now.draw(name, 2)
+        if player.id == game_now.game_sequence[0]:
+            _c += game_now.draw(2)
+        player.move_init()
