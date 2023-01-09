@@ -9,6 +9,10 @@ from .assets import ALIAS, SKILL, CHARACTER, PROPCARD
 SKILL_EXCLUSIVE: Dict[str, list] = {"黯星":["屠杀", 0], "恋慕":["氤氲", 4], "卿别":["窃梦者", 3], "时雨":["冰芒", 1], "敏博士":["异镜解构", 3], "赐弥":["数据传输", -2]}
 
 
+def dice(size: int) -> int:
+    return random.randint(1, size)
+
+
 # 定义角色类
 class Character:
     def __init__(
@@ -51,6 +55,8 @@ class Player:
 
         self.card_count = card_count    # 玩家手牌数量
         self.card: List[str] = ['']     # 初始化玩家手牌
+
+        self.dice: int = 0
 
     def regenerate(self, round: int) -> str:            # 行动点回复方法
         if round == 0:
@@ -188,7 +194,7 @@ class Game:
         except KeyError:
             return "你还没加入对局哦"
         _id = _player.id
-        for name, player in self.players.items():   # 更改其余玩家的编号
+        for player in self.players.values():   # 更改其余玩家的编号
             if player.id > _id:
                 player.id -= 1
         self.player_count -= 1                      # 对局玩家总数
@@ -300,7 +306,7 @@ class Game:
             return (False, "玩家人数小于2，不能开启对局")
         if self.game_status == 1:
             return (False, "对局已经开始啦")
-        for n, pl in self.players.items():
+        for pl in self.players.values():
             if not pl.character:
                 return (False, "还有玩家没选好角色呢")
         if self.game_type == 0:
@@ -308,7 +314,7 @@ class Game:
         elif self.game_type == 1:
             if self.team_count < 2:
                 return (False, "队伍数量小于2 不能开启对局")
-            for n, pl in self.players.items():
+            for pl in self.players.values():
                 if not pl.team:
                     return (False, "还有玩家没有加入队伍哦")
         self.game_status = 1
@@ -325,7 +331,7 @@ class Game:
         random.shuffle(self.game_sequence)
         _ret["group"] += "战斗开始！出牌顺序如下——"
         for name, player in self.players.items():
-            if player.character.id not in [k for k, v in SKILL_EXCLUSIVE.items()]:
+            if player.character.id not in [k for k in SKILL_EXCLUSIVE.keys()]:
                 _s1, _s2 = self.choose_skill(name), self.choose_skill(name)
                 _ret["player"][player.qq] = {"skill":f"{_s1} {_s2}"}
             else:

@@ -14,7 +14,7 @@ def __get_file(file: str, suffix: str) -> str:
         return f.read()
 
 
-# 已字典形式获取别名
+# 以字典形式获取别名
 def __get_aliases() -> dict:
     _val = __get_file("alias", "txt").split(sep="\n")
     _dct: dict = {}
