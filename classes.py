@@ -2,7 +2,7 @@ import random, math
 
 from typing import List, Dict
 
-from .assets import ALIAS, SKILL, CHARACTER, PROPCARD
+import assets
 
 # 自带技能角色忽略技能抽取
 SKILL_EXCLUSIVE: Dict[str, list] = {"黯星": ["屠杀", 0], "恋慕": ["氤氲", 4], "卿别": ["窃梦者", 3],
@@ -11,6 +11,17 @@ SKILL_EXCLUSIVE: Dict[str, list] = {"黯星": ["屠杀", 0], "恋慕": ["氤氲"
 
 def dice(size: int) -> int:
     return random.randint(1, size)
+
+
+class Logger(object):
+    def __init__(self, level: str) -> None:
+        self.level = f"[{level.upper}]"
+
+    def __call__(self, func):
+        def wrapper(*args, **kwargs):
+            print(func(*args, **kwargs))
+            return
+        return wrapper
 
 
 # 定义角色类
@@ -41,7 +52,7 @@ class Character:
 # 定义玩家类
 class Player:
     def __init__(
-            self, id: int = 0, qq: int = 0, name: str = "", card_count: int = 0,
+            self, qq: int, id: int = 0, name: str = "", card_count: int = 0,
             # skill_1: str = "", skill_1_cd: int = 0, skill_2: str = "", skill_2_cd: int = 0, skill_3: str = "", skill_3_cd: int = 0
     ) -> None:  # 初始化玩家数据
         self.id = id  # 玩家编号
@@ -68,7 +79,7 @@ class Player:
             self.character.move_point += self.character.move_regenerate
             if self.character.move_point > self.character.max_move:
                 self.character.move_point = self.character.max_move
-            return f"行动点已回复 %{_move_temp} -> %{self.character.move_point}"
+            return f"行动点已回复 {_move_temp} -> {self.character.move_point}"
 
     def move_init(self) -> None:
         _rt = self.character.regenerate_type
@@ -91,17 +102,16 @@ class Player:
     def _has_card(self, card: str) -> bool:  # 判断玩家是否持有手牌
         return True if card in self.card else False
 
-    def set_character(self, character: Character) -> str:  # 设置玩家角色
-        self.character = character
-        if character.id == "洛尔":
-            self.character.attack = 60 + \
-                                    (random.randint(1, 4) + random.randint(1, 4)) * 5
+    def set_character(self, c: list) -> str:  # 设置玩家角色
+        self.character = Character(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7])
+        if c[0] == "洛尔":
+            self.character.attack = 60 + (random.randint(1, 4) + random.randint(1, 4)) * 5
             self.character.defense = 25 + random.randint(1, 6) * 5
-        return f"%{self.name} 选择了角色 %{character.id}"
+        return f"{self.name} 选择了角色 {c[0]}"
 
     def play_card(self, card: str):
         if not self._has_card(card):
-            return f"你的手上没有 %{card} 哦"
+            return f"你的手上没有 {card} 哦"
         self.card.remove(card)
         return None
 
@@ -120,6 +130,7 @@ class Player:
         _ret = f"""{_c.id}({self.name}):  手牌:{self.card_count}  队伍:{_t}
   -hp:{_c.hp}({_c.armor})/{_c.max_hp}  atk:{_c.attack}  def:{_c.defense}  mp:{_c.move_point}/{_c.max_move}
   -状态:{_st}"""
+        return _ret
 
 
 # 定义队伍类
@@ -176,17 +187,17 @@ class Game:
         self.discard: List[str] = []  # 出牌堆
         self.skill_deck: Dict[str, int] = {}  # 技能及已获取技能
         self.skill_banned: List[str] = []
-        self.character_available: Dict[str, Character] = {}  # 可用角色
+        self.character_available: Dict[str, list] = {}  # 可用角色
         self.character_banned: List[str] = []  # ban/已使用的角色
 
         self.cancel_ensure: int = 1  # 确认取消对局
         self.data_temp: dict = {}  # 储存额外数据
 
-    def add_player(self, player_name: str):
-        self.players[player_name] = Player(
+    def add_player(self, player_name: str, player_qq):
+        self.players[player_name] = Player(qq=player_qq,
             id=self.player_count + 1, name=player_name)
         self.player_count += 1
-        return f"%{player_name} 加入了对局 %{self.game_id}\n目前已有 %{self.player_count} 名玩家"
+        return f"{player_name} 加入了对局 {self.game_id}\n目前已有 {self.player_count} 名玩家"
 
     def move_player(self, player_name: str):
         if self.game_status != 0:  # 判断对局是否在准备状态
@@ -214,6 +225,8 @@ class Game:
             _player = self.players[player_name]
         except KeyError:
             return "你还没加入对局哦"
+        if self.game_status == 1:
+            return "对局已开始"
         if character not in self.character_available:
             return "该角色不存在哦"
         if character in self.character_banned:
@@ -222,18 +235,18 @@ class Game:
             # 禁用玩家当前角色 撤销禁用玩家选择的上一个角色
             self.character_banned.append(character)
             _ = self.unban_character(_player.character.id)
-            return _player.set_character(self.character_available[character]) + _
+            return _player.set_character(self.character_available[character]) + "\n" + _
         else:
             self.character_banned.append(character)
             return _player.set_character(self.character_available[character])
 
     def ban_character(self, character: str):
         self.character_banned.append(character)
-        return f"已禁用角色 %{character}"
+        return f"已禁用角色 {character}"
 
     def unban_character(self, character: str):
         self.character_banned.remove(character)
-        return f"%{character} 目前可用"
+        return f"{character} 目前可用"
 
     def save(self, is_complete: bool, is_canceled: bool = False):
         pass
@@ -247,14 +260,15 @@ class Game:
             return "你还没加入任何队伍哦"
         _id = _player.team
         self.teams[_id].team_member.remove(player_name)
+        _player.team = 0
         ret = f"{player_name} 已退出队伍 {_id}"
         if len(self.teams[_id].team_member) == 0:
-            for id, team in self.teams.items():
+            for id in self.teams.keys():
                 if id > _id:
                     id -= 1
             self.teams.pop(_id)
             self.team_count -= 1
-            ret += f"\n队伍 %{_id} 人数为0 已清除"
+            ret += f"\n队伍 {_id} 人数为0，已清除"
         return ret
 
     def set_team(self, player_name: str, team_id: int = 0, to_player: str = ""):
@@ -264,33 +278,40 @@ class Game:
             return "你还没加入对局哦"
         if self.game_type != 1:
             return "当前对局不是团队战哦"
+        ret = ""
+        if _player.team != 0:
+            ret += self.quit_team(player_name) + "\n"
         if not team_id and not to_player:
             team_id = self.team_count + 1
+            self.team_count += 1
             self.teams[team_id] = Team(player_name)
             _player.team = team_id
-            return f"%{player_name} 已创建队伍 %{team_id}"
+            ret += f"{player_name} 已创建队伍 {team_id}"
         elif team_id and not to_player:
             try:
                 self.teams[team_id].team_member.append(player_name)
                 _player.team = team_id
+                ret += f"{player_name} 已加入队伍 {team_id}"
             except KeyError:
-                return f"队伍 %{team_id} 不存在"
+               return f"队伍 {team_id} 不存在"
         elif to_player and not team_id:
             try:
                 _player2 = self.players[to_player]
             except KeyError:
-                return f"玩家不存在"
+                return "玩家不存在"
             if _player2.team:
                 team_id = _player2.team
+                _player.team = team_id
                 self.teams[team_id].team_member.append(player_name)
-                return f"已加入 %{to_player}  所在的队伍 %{team_id}"
+                ret += f"已加入 {to_player} 所在的队伍 {team_id}"
             else:
                 team_id = self.team_count + 1
                 self.teams[team_id] = Team(player_name, to_player)
                 self.team_count += 1
                 _player.team = team_id
                 _player2.team = team_id
-                return f"%{player_name} 与 %{to_player} 已创建队伍 %{team_id}"
+                ret += f"{player_name} 与 {to_player} 已创建队伍 {team_id}"
+        return ret
 
     def choose_skill(self, player_name: str) -> str:
         _pl = self.players[player_name]
@@ -304,20 +325,20 @@ class Game:
         return _s
 
     def start_game(self, player_name: str) -> tuple:
-        if self.starter_qq != player_name:
+        if self.starter != player_name:
             return False, "你不是对局发起人哦"
         if self.player_count < 2:
             return False, "玩家人数小于2，不能开启对局"
         if self.game_status == 1:
-            return (False, "对局已经开始啦")
+            return False, "对局已经开始啦"
         for pl in self.players.values():
-            if not pl.character:
+            if not pl.character.id:
                 return False, "还有玩家没选好角色呢"
         if self.game_type == 0:
             pass
         elif self.game_type == 1:
             if self.team_count < 2:
-                return (False, "队伍数量小于2 不能开启对局")
+                return False, "队伍数量小于2 不能开启对局"
             for pl in self.players.values():
                 if not pl.team:
                     return False, "还有玩家没有加入队伍哦"
@@ -328,7 +349,7 @@ class Game:
 
     def _init_game(self):
         _ret: Dict[str, dict] = {"group": "", "player": {}}
-        self.deck = PROPCARD
+        self.deck = assets.PROPCARD
         random.shuffle(self.deck)
         self.game_sequence = [i for i in range(1, self.player_count + 1)]
         random.shuffle(self.game_sequence)
@@ -371,3 +392,6 @@ class Game:
         self.deck.extend(self.discard)
         self.discard.clear()
         return
+    
+    def play_card(self):
+        pass

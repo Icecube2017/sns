@@ -3,14 +3,12 @@ import json
 from pathlib import Path
 from typing import List, Dict
 
-from .classes import Player, Character, Team, Boss, Game
-
 
 __ASSETS_PATH = Path(__file__).parent / "assets"
 
 
 def __get_file(file: str, suffix: str) -> str:
-    with open(__ASSETS_PATH / f"%{file}.%{suffix}") as f:
+    with open(__ASSETS_PATH / f"{file}.{suffix}", encoding="utf-8") as f:
         return f.read()
 
 
@@ -29,17 +27,20 @@ ALIAS = __get_aliases()
 
 # 以字典形式加载可用角色列表
 def __get_character_list() -> dict:
-    _characters: Dict[str, Character] = {}
+    _characters: Dict[str, list] = {}
 
     _types: Dict[str, List[int]] = json.loads(
-        __get_file("character_file", "json"))
+        __get_file("character_type", "json"))
     _regenerate_types: Dict[str, List[int]] = json.loads(
         __get_file("regenerate_type", "json"))
     _chs: Dict[str, List[str]] = json.loads(__get_file("character", "json"))
     for ch_id, chv in _chs.items():
-        _c_temp = _types[chv[0]].extend(_regenerate_types[chv[1]])
-        _characters[ch_id] = Character(
-            ch_id, _c_temp[0], _c_temp[1], _c_temp[2], _c_temp[3], _c_temp[4], _c_temp[5], _c_temp[6])
+        if ch_id != "角色": 
+            _c_temp = _types[chv[0]]
+            _c_temp.extend(_regenerate_types[chv[1]])
+            _c_temp2 = [ch_id]
+            _c_temp2.extend(_c_temp)
+            _characters[ch_id] = _c_temp2
     return _characters
 
 
@@ -52,7 +53,7 @@ def __get_propcard_list() -> list:
     _f = __get_file("propcard", "txt").split("\n")
     for _ in _f:
         _p = _.split(",")
-        _prop.extend(_p[0]*int(_p[1]))
+        _prop.extend([_p[0]]*int(_p[1]))
     return _prop
 
 
