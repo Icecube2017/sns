@@ -289,7 +289,7 @@ class Game:
         _s = ""
         _cd = 0
         while not _s and _s not in self.skill_banned:
-            _s = random.choice(self.skill_deck.keys())
+            _s = random.choice(list(self.skill_deck.keys()))
             _cd = self.skill_deck.get(_s)
         _pl.skill[_s] = _cd
         self.skill_banned.append(_s)
