@@ -110,7 +110,7 @@ def join_game(gid: int, player_name: str):
 
 
 # 开始游戏
-def start_game(gid: int, player_name: str) -> dict:
+def start_game(gid: int, player_name: str):
     try:
         game_now = playing_games[gid]
     except KeyError:
@@ -118,7 +118,7 @@ def start_game(gid: int, player_name: str) -> dict:
     return game_now.start_game(player_name)
 
 
-def play_card(gid: int, player_name: str, *args) -> dict:
+def play_card(gid: int, player_name: str, *args):
     try:
         game_now = playing_games[gid]
     except KeyError:

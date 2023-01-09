@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from typing import List, Dict
 
-from .classes import Player, Character, Team, Boss, Game
+from .classes import *
 
 
 __ASSETS_PATH = Path(__file__).parent / "assets"

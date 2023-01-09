@@ -2,7 +2,7 @@ from .classes import *
 from .assets import *
 
 
-def get_func(func: str, *args) -> function:
+def get_func(func: str, *args):
     def wood_sword(player: Player):
         player.character.attack += 10
 
