@@ -29,7 +29,7 @@ playing_games: Dict[int, Game] = {}
 game_temp: Dict[str, List[Game]] = {}
 # 自带技能角色忽略技能抽取
 SKILL_IGNORE = ["黯星", "恋慕", "卿别", "时雨", "敏博士", "赐弥"]
-SKILL_EXCLUSIVE: Dict[str, str] = {"黯星":"屠杀", "恋慕":"氤氲", "卿别":"窃梦者", "时雨":"", "敏博士":"", "赐弥":""}
+SKILL_EXCLUSIVE: Dict[str, str] = {"黯星": "屠杀", "恋慕": "氤氲", "卿别": "窃梦者", "时雨": "", "敏博士": "", "赐弥": ""}
 
 
 # 随机字符串生成器 参数为字符串长度
@@ -53,7 +53,7 @@ def new_game(gid: int, starter: str, starter_qq: int, game_type: int = -1, lengt
         game_id=game_id, starter=starter, starter_qq=starter_qq, game_type=game_type)                     # 将游戏实例加入游戏列表
     playing_games[gid].character_available = CHARACTER
     playing_games[gid].skill_deck = SKILL
-    type_name = {"个人战", "团队战", "Boss战"}[game_type]
+    type_name = ("个人战", "团队战", "Boss战")[game_type]
     return f"由 %{starter} 发起的 Strife & Strike %{type_name} 开始招募选手了！"
 
 
