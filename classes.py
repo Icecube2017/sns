@@ -103,7 +103,7 @@ class Player:
         if not _c.status:
             _st = "无"
         else:
-            for _k, _v in _c.status.items:
+            for _k, _v in _c.status.items():
                 _st += f"{_k}({_v}) "
         if not self.team:
             _t = "无"
@@ -164,12 +164,12 @@ class Game:
         self.scene_on: bool = False          # 场景是否开启
         self.scene: str = ""                 # 场景名称
 
-        self.deck: List[str] = []            # 摸牌堆
+        self.deck: List[str] = []       # 摸牌堆
         self.discard: List[str] = []         # 出牌堆
-        self.skill_deck: List[str] = []      # 技能及已获取技能
+        self.skill_deck: Dict[str, int] = {}      # 技能及已获取技能
         self.skill_banned: List[str] = []
         self.character_available: Dict[str, Character] = {}     # 可用角色
-        self.character_banned = List[str] = []                  # ban/已使用的角色
+        self.character_banned : List[str] = []                  # ban/已使用的角色
 
         self.cancel_ensure: int = 1          # 确认取消对局
         self.data_temp: dict = {}            # 储存额外数据
@@ -239,7 +239,7 @@ class Game:
             return "你还没加入任何队伍哦"
         _id = _player.team
         self.teams[_id].team_member.remove(player_name)
-        ret = f"%{player_name} 已退出队伍 %{id}"
+        ret = f"{player_name} 已退出队伍 {_id}"
         if len(self.teams[_id].team_member) == 0:
             for id, team in self.teams.items():
                 if id > _id:
@@ -287,8 +287,10 @@ class Game:
     def choose_skill(self, player_name: str) -> str:
         _pl = self.players[player_name]
         _s = ""
+        _cd = 0
         while not _s and _s not in self.skill_banned:
-            _s, _cd = random.choice(self.skill_deck.items())
+            _s = random.choice(self.skill_deck.keys())
+            _cd = self.skill_deck.get(_s)
         _pl.skill[_s] = _cd
         self.skill_banned.append(_s)
         return _s
