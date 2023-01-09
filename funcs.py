@@ -1,6 +1,7 @@
 from .classes import *
 from .assets import *
 
+
 def get_func(func: str, *args) -> function:
     def wood_sword(player: Player):
         player.character.attack += 10
@@ -20,9 +21,11 @@ def get_func(func: str, *args) -> function:
         player.character.defense += 10
 
     def corrupted_pendant(player: Player, target_player: Player):
-        player.character.hp, player.character.attack += 60, 5
-        target_player.character.hp, target_player.character.attack -= 60, 5
+        player.character.hp += 60
+        player.character.attack += 5
+        target_player.character.hp -= 60
+        target_player.character.attack -= 5
 
-    funcs = {"木剑": wood_sword, "英雄传说": hero_legend, "盾牌": shield, "自疗": self_cure, "心形挂坠盒": heart_locket, "堕灵吊坠": corrupted_pendant
-    }
+    funcs = {"木剑": wood_sword, "英雄传说": hero_legend, "盾牌": shield, "自疗": self_cure, "心形挂坠盒": heart_locket,
+             "堕灵吊坠": corrupted_pendant}
     return funcs[func]
