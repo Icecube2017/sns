@@ -27,13 +27,6 @@ class Logger(object):
         return wrapper
 
 
-class Damage:
-    def __init__(self) -> None:
-        self.damage: int = 0
-        self.dice_type: int = 4
-        self.dice_point: int = 0
-
-
 # 定义角色类
 class Character:
     def __init__(
@@ -171,6 +164,29 @@ class Team:
 class Scene:
     pass
 """
+
+
+class Damage:
+    def __init__(self, source: str, target: Player) -> None:
+        self.damage_point: int = 0
+        self.source: str = source
+        self.target: Player = target
+        self.isaoe: bool = False
+        self.ispierce: bool = False
+        self.ishealthlost: bool = False
+        self.isheal: bool = False
+
+        def damage():
+            if self.isaoe == True:
+                if target.character.id == '奈普斯特':
+                    return
+            if self.ispierce == False:
+                pass
+            if self.ishealthlost == True:
+                target.character.hp -= self.damage_point
+                return
+            target.character.hp -= self.damage_point
+            return
 
 
 # 定义游戏类
@@ -331,7 +347,7 @@ class Game:
         while not _s and _s not in self.skill_banned:
             _s = random.choice(list(self.skill_deck.keys()))
             _cd = self.skill_deck.get(_s)
-        _pl.skill[_s] = _cd
+        _pl.skill[_s] = _cd + 1
         self.skill_banned.append(_s)
         return _s
 
