@@ -9,8 +9,11 @@ SKILL_EXCLUSIVE: Dict[str, list] = {"黯星": ["屠杀", 0], "恋慕": ["氤氲"
                                     "时雨": ["冰芒", 1], "敏博士": ["异镜解构", 3], "赐弥": ["数据传输", -2]}
 
 
-def dice(size: int) -> int:
-    return random.randint(1, size)
+def dice(size: int, times: int = 1) -> int:
+    _d: int = 0
+    for i in range(times):
+        _d += random.randint(1, size)
+    return _d
 
 
 class Logger(object):
@@ -19,9 +22,16 @@ class Logger(object):
 
     def __call__(self, func):
         def wrapper(*args, **kwargs):
-            print(func(*args, **kwargs))
+            print(self.level, func(*args, **kwargs))
             return
         return wrapper
+
+
+class Damage:
+    def __init__(self) -> None:
+        self.damage: int = 0
+        self.dice_type: int = 4
+        self.dice_point: int = 0
 
 
 # 定义角色类
@@ -37,6 +47,7 @@ class Character:
         self.defense = defense
         self.armor: int = 0  # 角色护甲值
 
+        self.damage: Damage = Damage()
         self.damage_recieved_total: int = 0
         self.damage_dealed_total: int = 0
 
@@ -47,6 +58,7 @@ class Character:
         self.regenerate_turns = regenerate_turns
 
         self.status: Dict[str, int] = {}  # 初始化角色状态
+        self.hidden_status: Dict[str, int] = {}
 
 
 # 定义玩家类
@@ -67,9 +79,8 @@ class Player:
         self.card_count = card_count  # 玩家手牌数量
         self.card: List[str] = ['']  # 初始化玩家手牌
 
-        self.dice: int = 0
-
-        self.dice: int = 0
+        self.attacked: bool = False
+        self.data_temp: list = []
 
     def regenerate(self, round: int) -> str:            # 行动点回复方法
         if round == 0:
@@ -105,8 +116,8 @@ class Player:
     def set_character(self, c: list) -> str:  # 设置玩家角色
         self.character = Character(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7])
         if c[0] == "洛尔":
-            self.character.attack = 60 + (random.randint(1, 4) + random.randint(1, 4)) * 5
-            self.character.defense = 25 + random.randint(1, 6) * 5
+            self.character.attack = 60 + dice(4, 2) * 5
+            self.character.defense = 25 + dice(6) * 5
         return f"{self.name} 选择了角色 {c[0]}"
 
     def play_card(self, card: str):
@@ -133,12 +144,6 @@ class Player:
         return _ret
 
 
-# 定义队伍类
-class Team:
-    def __init__(self, *players) -> None:
-        self.team_member: List[str] = list(players)  # 队伍成员
-
-
 # 定义boss类
 class Boss:
     def __init__(
@@ -154,6 +159,12 @@ class Boss:
         self.skill: Dict[str, int] = {}
 
         self.status: List[int] = []
+
+
+# 定义队伍类
+class Team:
+    def __init__(self, *players) -> None:
+        self.team_member: List[str] = list(players)  # 队伍成员
 
 
 """
