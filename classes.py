@@ -40,7 +40,7 @@ class Character:
         self.defense = defense
         self.armor: int = 0  # 角色护甲值
 
-        self.damage: Damage = Damage()
+      # self.damage: Damage = Damage()
         self.damage_recieved_total: int = 0
         self.damage_dealed_total: int = 0
 
@@ -57,7 +57,7 @@ class Character:
 # 定义玩家类
 class Player:
     def __init__(
-            self, qq: int, id: int = 0, name: str = "", card_count: int = 0,
+            self, qq: int, id: int = 0, name: str = ""
             # skill_1: str = "", skill_1_cd: int = 0, skill_2: str = "", skill_2_cd: int = 0, skill_3: str = "", skill_3_cd: int = 0
     ) -> None:  # 初始化玩家数据
         self.id = id  # 玩家编号
@@ -69,7 +69,7 @@ class Player:
 
         self.skill: Dict[str, int] = {}
 
-        self.card_count = card_count  # 玩家手牌数量
+        self.card_count = 0  # 玩家手牌数量
         self.card: List[str] = ['']  # 初始化玩家手牌
 
         self.attacked: bool = False
@@ -167,26 +167,43 @@ class Scene:
 
 
 class Damage:
-    def __init__(self, source: str, target: Player) -> None:
+    def __init__(self, source: Player, target: Player) -> None:
         self.damage_point: int = 0
-        self.source: str = source
+        self.source: Player = source
         self.target: Player = target
         self.isaoe: bool = False
         self.ispierce: bool = False
-        self.ishealthlost: bool = False
+        self.ishplost: bool = False
         self.isheal: bool = False
+        self.dice_size = 4
+        self.dice_point = 1
+        self.atk_plus: int = 0
+        self.atk_multi: int = 1
+        self.dmg_plus: int = 0
+        self.dmg_multi: int = 1
 
-        def damage():
+        def dice_multi(self):
+            self.dice_point = dice(self.dice_size, 1)
+    
+        def calculate(self):
+            self.damage_point == (((self.atk_plus + source.character.attack) * self.atk_multi - target.character.defense) * self.dice_point + self.dmg_plus) * self.dmg_multi
+
+        def damage(self):
             if self.isaoe == True:
-                if target.character.id == '奈普斯特':
+                if target.character.id in ['奈普斯特', "格白"]:
                     return
             if self.ispierce == False:
                 pass
-            if self.ishealthlost == True:
+            if self.ishplost == True:
                 target.character.hp -= self.damage_point
                 return
-            target.character.hp -= self.damage_point
-            return
+            if self.isheal == True:
+                target.character.hp += self.damage_point
+            else:
+                target.character.hp -= self.damage_point
+                return
+        
+        
 
 
 # 定义游戏类
@@ -420,5 +437,9 @@ class Game:
         self.discard.clear()
         return
     
-    def play_card(self):
-        pass
+    def play_card(self, player_name: str, target_name: str):
+        _pl = self.players[player_name]
+        _tg = self.players[target_name]
+        _damage = Damage(_pl, _tg)
+        if _damage.isheal == False:
+            _damage.calculate()
