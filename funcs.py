@@ -106,7 +106,7 @@ def get_func(func: str, *args):
 
     def fragment(player: classes.Player, game: classes.Game, damage: classes.Damage):
         player.character.hidden_status["frag"] = -1
-        damage.dmgplus += 45
+        damage.dmg_plus += 45
         game.draw(player.name, 2)
 
     def data(player: classes.Player):
@@ -130,7 +130,7 @@ def get_func(func: str, *args):
                 pl.character.status["浴霸"] = 1
 
     def netherite_axe(player: classes.Player, target_player:classes.Player, damage: classes.Damage):
-        damage.dmgplus += 90
+        damage.dmg_plus += 90
         player.character.hidden_status["ne_axe"] = -1
         target_player.character.status["破盾"] = 2
 
@@ -151,7 +151,7 @@ def get_func(func: str, *args):
     def hologram(player: classes.Player, game: classes.Game, damage: classes.Damage):
         damage.isheal = True
         damage.damage_point = 0
-        _skill = game.choose_skill(player)
+        _skill = game.choose_skill(player.name)
         _cd = game.skill_deck.get(_skill)
         player.skill[_skill] = _cd + 1
 
@@ -169,8 +169,10 @@ def get_func(func: str, *args):
         player.character.defense += 10
 
     def corrupt_pendant(player: classes.Player, target_player: classes.Player):
-        player.character.hp, player.character.attack += 60, 5
-        target_player.character.hp, target_player.character.attack -= 60, 5
+        player.character.hp += 60
+        player.character.attack += 5
+        target_player.character.hp -= 60
+        target_player.character.attack -= 5
 
     def amethyst(player: classes.Player, damage: classes.Damage, decide:bool):
         damage.dmg_plus += 35
@@ -202,7 +204,7 @@ def get_func(func: str, *args):
 
     funcs = {"末影水晶":end_crystal, "木剑": wood_sword, "英雄传说": hero_legend, "登神的长阶":ascension_stairs,
     "无敌贯通":critical_strike, "盾牌": shield, "自疗": self_curing, "再生":regeneration, "力量药水":strength, 
-    "力量药水":strength_ii, "六方棱":hexastal, "八重镜":octastal, "十面璃":decastal,"山茶花的电钻":camelias_drill, 
+    "力量药水II":strength_ii, "六方棱":hexastal, "八重镜":octastal, "十面璃":decastal,"山茶花的电钻":camelias_drill,
     "残片":fragment, "Data":data, "慑敌辉光":deterrent_radiance, "下界合金斧":netherite_axe,"红石":redstone, 
     "纳米剑":nanosword, "栓绳":lead, "光灵箭":spectral_arrow, "全息投影":hologram,
     "烈焰之炽焱":pyrotheum, "死神之息":breath_of_reaper, "极寒之凛冰":cryotheum, "心形挂坠盒": heart_locket, 

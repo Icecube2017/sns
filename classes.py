@@ -40,7 +40,7 @@ class Character:
         self.defense = defense
         self.armor: int = 0  # 角色护甲值
 
-      # self.damage: Damage = Damage()
+        # self.damage: Damage = Damage()
         self.damage_recieved_total: int = 0
         self.damage_dealed_total: int = 0
 
@@ -189,22 +189,20 @@ class Damage:
         self.damage_point == (((self.atk_plus + self.source.character.attack) * self.atk_multi - self.target.character.defense) * self.dice_point + self.dmg_plus) * self.dmg_multi
 
     def damage(self):
-        if self.isaoe == True:
+        if self.is_aoe == True:
             if self.target.character.id in ['奈普斯特', "格白"]:
                 return
-        if self.ispierce == False:
+        if self.is_pierce == False:
             pass
-        if self.ishplost == True:
+        if self.is_hplost == True:
             self.target.character.hp -= self.damage_point
             return
-        if self.isheal == True:
+        if self.is_heal == True:
             self.target.character.hp += self.damage_point
         else:
             self.target.character.hp -= self.damage_point
             return
         
-        
-
 
 # 定义游戏类
 class Game:
@@ -238,8 +236,7 @@ class Game:
         self.data_temp: dict = {}  # 储存额外数据
 
     def add_player(self, player_name: str, player_qq):
-        self.players[player_name] = Player(qq=player_qq,
-            id=self.player_count + 1, name=player_name)
+        self.players[player_name] = Player(qq=player_qq, id=self.player_count + 1, name=player_name)
         self.player_count += 1
         return f"{player_name} 加入了对局 {self.game_id}\n目前已有 {self.player_count} 名玩家"
 
@@ -337,7 +334,7 @@ class Game:
                 _player.team = team_id
                 ret += f"{player_name} 已加入队伍 {team_id}"
             except KeyError:
-               return f"队伍 {team_id} 不存在"
+                return f"队伍 {team_id} 不存在"
         elif to_player and not team_id:
             try:
                 _player2 = self.players[to_player]
@@ -441,5 +438,5 @@ class Game:
         _pl = self.players[player_name]
         _tg = self.players[target_name]
         _damage = Damage(_pl, _tg)
-        if _damage.isheal == False:
+        if _damage.is_heal is False:
             _damage.calculate()
