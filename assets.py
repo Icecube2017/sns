@@ -69,7 +69,9 @@ def __get_skill_list() -> Dict[str, int]:
         _dct[v2[0]] = int(v2[1])
     return _dct
 
+
 SKILL = __get_skill_list()
+
 
 def __get_private_skill_list() -> Dict[str, int]:
     _val = __get_file("private_skill", "txt").split(sep="\n")
@@ -78,5 +80,6 @@ def __get_private_skill_list() -> Dict[str, int]:
         v2 = v.split(sep=",")
         _dct[v2[0]] = int(v2[1])
     return _dct
+
 
 PRIVATE_SKILL = __get_private_skill_list()
