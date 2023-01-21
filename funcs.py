@@ -13,7 +13,7 @@ def get_func(func: str, *args):
     def end_crystal(player: classes.Player, game: classes.Game):
         _empty_pl = classes.Player(5364, -100, "None")
         _damage = classes.Damage(_empty_pl, player)
-        _damage.ishplost = True
+        _damage.is_hplost = True
         _damage.damage_point = 30 + dice(4, 2) * 15
         _damage.damage()
         _dmg_point = 40 + dice(8, 1) * 15
@@ -23,7 +23,7 @@ def get_func(func: str, *args):
                 and pl.character.status.values() not in ["咕了"]\
                 and not (pl.character.status.values() in ["梦境"] and player.character.id == "卿别") :
                 _damage2 = classes.Damage(player, pl)
-                _damage2.isaoe = True
+                _damage2.is_aoe = True
                 _damage2.damage_point = _dmg_point
                 _damage2.damage()
 
@@ -43,7 +43,7 @@ def get_func(func: str, *args):
     def ascension_stairs(player: classes.Player, game: classes.Game):
         _empty_pl = classes.Player(1013, -101, "None")
         _damage = classes.Damage(_empty_pl, player)
-        _damage.ishplost = True
+        _damage.is_hplost = True
         _damage.damage_point = 0.1*player.character.max_hp
         _damage.damage()
         _min = 6
@@ -63,7 +63,7 @@ def get_func(func: str, *args):
         _dmg_point = _max * 50
         for pl2 in _target:
             _damage2 = classes.Damage(player, pl2)
-            _damage2.isaoe = True
+            _damage2.is_aoe = True
             _damage2.damage_point = _dmg_point
             _damage2.damage()
 
@@ -71,10 +71,10 @@ def get_func(func: str, *args):
     
     def critical_strike(player: classes.Player, damage: classes.Damage):
         player.character.hidden_status["piercing"] = -1
-        damage.ispierce = True
+        damage.is_pierce = True
 
     def self_curing(player: classes.Player, damage: classes.Damage):
-        damage.isheal = True
+        damage.is_heal = True
         damage.damage_point = 120
 
     def regeneration(player: classes.Player):
@@ -141,7 +141,7 @@ def get_func(func: str, *args):
         player.character.hidden_status["nano"] = -1
 
     def lead(player: classes.Player, target_player: classes.Player, damage: classes.Damage):
-        damage.isheal = True
+        damage.is_heal = True
         damage.damage_point = 0
         player.character.hidden_status["lead"] = -1
     
@@ -159,7 +159,7 @@ def get_func(func: str, *args):
         target_player.character.status["熔岩之触"] = 3
     
     def breath_of_reaper(target_player: classes.Player, damage: classes.Damage):
-        damage.dmgplus += 100
+        damage.dmg_plus += 100
         target_player.character.status["死灵"] = 2
     
     def cryotheum(target_player: classes.Player):
@@ -183,10 +183,10 @@ def get_func(func: str, *args):
         pass
 
     def tracking_arrow(player: classes.Player, damage: classes.Damage):
-        damage.ispierce = True
+        damage.is_pierce = True
 
     def penetrating_arrow(player: classes.Player, damage: classes.Damage):
-        damage.ispierce = True
+        damage.is_pierce = True
 
     def end_halberd(player: classes.Player, damage: classes.Damage):
         damage.dmg_multi *= 1.5

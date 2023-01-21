@@ -171,37 +171,37 @@ class Damage:
         self.damage_point: int = 0
         self.source: Player = source
         self.target: Player = target
-        self.isaoe: bool = False
-        self.ispierce: bool = False
-        self.ishplost: bool = False
-        self.isheal: bool = False
-        self.dice_size = 4
-        self.dice_point = 1
+        self.is_aoe: bool = False
+        self.is_pierce: bool = False
+        self.is_hplost: bool = False
+        self.is_heal: bool = False
+        self.dice_size: int = 4
+        self.dice_point: int = 1
         self.atk_plus: int = 0
         self.atk_multi: int = 1
         self.dmg_plus: int = 0
         self.dmg_multi: int = 1
 
-        def dice_multi(self):
-            self.dice_point = dice(self.dice_size, 1)
-    
-        def calculate(self):
-            self.damage_point == (((self.atk_plus + source.character.attack) * self.atk_multi - target.character.defense) * self.dice_point + self.dmg_plus) * self.dmg_multi
+    def dice_multi(self):
+        self.dice_point = dice(self.dice_size, 1)
 
-        def damage(self):
-            if self.isaoe == True:
-                if target.character.id in ['奈普斯特', "格白"]:
-                    return
-            if self.ispierce == False:
-                pass
-            if self.ishplost == True:
-                target.character.hp -= self.damage_point
+    def calculate(self):
+        self.damage_point == (((self.atk_plus + self.source.character.attack) * self.atk_multi - self.target.character.defense) * self.dice_point + self.dmg_plus) * self.dmg_multi
+
+    def damage(self):
+        if self.isaoe == True:
+            if self.target.character.id in ['奈普斯特', "格白"]:
                 return
-            if self.isheal == True:
-                target.character.hp += self.damage_point
-            else:
-                target.character.hp -= self.damage_point
-                return
+        if self.ispierce == False:
+            pass
+        if self.ishplost == True:
+            self.target.character.hp -= self.damage_point
+            return
+        if self.isheal == True:
+            self.target.character.hp += self.damage_point
+        else:
+            self.target.character.hp -= self.damage_point
+            return
         
         
 
