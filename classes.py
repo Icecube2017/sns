@@ -113,7 +113,7 @@ class Player:
             self.character.defense = 25 + dice(6) * 5
         return f"{self.name} 选择了角色 {c[0]}"
 
-    def play_card(self, card: str):
+    def play_card(self, *card: str):
         if not self._has_card(card):
             return f"你的手上没有 {card} 哦"
         self.card.remove(card)
@@ -135,29 +135,6 @@ class Player:
   -hp:{_c.hp}({_c.armor})/{_c.max_hp}  atk:{_c.attack}  def:{_c.defense}  mp:{_c.move_point}/{_c.max_move}
   -状态:{_st}"""
         return _ret
-
-
-# 定义boss类
-class Boss:
-    def __init__(
-            self, max_hp: int = 0, attack: int = 0, defense: int = 0,
-            # skill_1: str = "", skill_1_cd: int = 0, skill_2: str = "", skill_2_cd: int = 0, skill_3: str = "", skill_3_cd: int = 0
-    ) -> None:
-        self.name: str = ""
-        self.health_point = max_hp
-        self.max_health = max_hp
-        self.attack = attack
-        self.defense = defense
-
-        self.skill: Dict[str, int] = {}
-
-        self.status: List[int] = []
-
-
-# 定义队伍类
-class Team:
-    def __init__(self, *players) -> None:
-        self.team_member: List[str] = list(players)  # 队伍成员
 
 
 """
@@ -186,14 +163,15 @@ class Damage:
         self.dice_point = dice(self.dice_size, 1)
 
     def calculate(self):
-        self.damage_point == (((self.atk_plus + self.source.character.attack) * self.atk_multi - self.target.character.defense) * self.dice_point + self.dmg_plus) * self.dmg_multi
+        self.damage_point = (((self.atk_plus + self.source.character.attack) * self.atk_multi - self.target.character.defense) * self.dice_point + self.dmg_plus) * self.dmg_multi
 
     def damage(self):
+        self.calculate()
         if self.is_aoe == True:
             if self.target.character.id in ['奈普斯特', "格白"]:
                 return
-        if self.is_pierce == False:
-            pass
+        #if self.is_pierce == False:
+            #pass
         if self.is_hplost == True:
             self.target.character.hp -= self.damage_point
             return
@@ -203,6 +181,29 @@ class Damage:
             self.target.character.hp -= self.damage_point
             return
         
+
+# 定义boss类
+class Boss:
+    def __init__(
+            self, max_hp: int = 0, attack: int = 0, defense: int = 0,
+            # skill_1: str = "", skill_1_cd: int = 0, skill_2: str = "", skill_2_cd: int = 0, skill_3: str = "", skill_3_cd: int = 0
+    ) -> None:
+        self.name: str = ""
+        self.health_point = max_hp
+        self.max_health = max_hp
+        self.attack = attack
+        self.defense = defense
+
+        self.skill: Dict[str, int] = {}
+
+        self.status: List[int] = []
+
+
+# 定义队伍类
+class Team:
+    def __init__(self, *players) -> None:
+        self.team_member: List[str] = list(players)  # 队伍成员
+
 
 # 定义游戏类
 class Game:
