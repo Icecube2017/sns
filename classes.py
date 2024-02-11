@@ -152,6 +152,7 @@ class Damage:
         self.is_pierce: bool = False
         self.is_hplost: bool = False
         self.is_heal: bool = False
+        self.is_det_rad = False
         self.dice_size: int = 4
         self.dice_point: int = 1
         self.atk_plus: int = 0
@@ -166,19 +167,24 @@ class Damage:
         self.damage_point = (((self.atk_plus + self.source.character.attack) * self.atk_multi - self.target.character.defense) * self.dice_point + self.dmg_plus) * self.dmg_multi
 
     def damage(self):
-        self.calculate()
+        if self.is_det_rad == True:
+            self.damage_point = 0
+            return
         if self.is_aoe == True:
             if self.target.character.id in ['奈普斯特', "格白"]:
                 return
-        #if self.is_pierce == False:
-            #pass
+        if self.is_pierce == False:
+            pass
         if self.is_hplost == True:
             self.target.character.hp -= self.damage_point
             return
         if self.is_heal == True:
             self.target.character.hp += self.damage_point
         else:
+            #print(self.target.character.hp)
             self.target.character.hp -= self.damage_point
+            #print(self.target.character.hp)
+            #print(self.damage_point)
             return
         
 
@@ -236,7 +242,7 @@ class Game:
         self.cancel_ensure: int = 1  # 确认取消对局
         self.data_temp: dict = {}  # 储存额外数据
 
-    def add_player(self, player_name: str, player_qq):
+    def add_player(self, player_qq: int, player_name: str):
         self.players[player_name] = Player(qq=player_qq, id=self.player_count + 1, name=player_name)
         self.player_count += 1
         return f"{player_name} 加入了对局 {self.game_id}\n目前已有 {self.player_count} 名玩家"

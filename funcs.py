@@ -10,19 +10,19 @@ def get_func(func: str, *args):
         _ = _ & (player.character.id in ["奈普斯特"])
         _ = _ & (("闪避" in player.character.status.keys()) & ("凛冰之拥" not in player.character.status.keys()))
 
-    def end_crystal(player: classes.Player, game: classes.Game):
+    def end_crystal(action: Action):
         _empty_pl = classes.Player(5364, -100, "None")
-        _damage = classes.Damage(_empty_pl, player)
+        _damage = classes.Damage(_empty_pl, action.source)
         _damage.is_hplost = True
         _damage.damage_point = 30 + dice(4, 2) * 15
         _damage.damage()
         _dmg_point = 40 + dice(8, 1) * 15
         # player.character.hp -= 30 + dice(4, 2) * 15
-        for pl in game.players.values():
-            if player.name != pl.name\
+        for pl in action.game.players.values():
+            if action.source.name != pl.name\
                 and pl.character.status.values() not in ["咕了"]\
-                and not (pl.character.status.values() in ["梦境"] and player.character.id == "卿别") :
-                _damage2 = classes.Damage(player, pl)
+                and not (pl.character.status.values() in ["梦境"] and action.source.character.id == "卿别") :
+                _damage2 = classes.Damage(action.source, pl)
                 _damage2.is_aoe = True
                 _damage2.damage_point = _dmg_point
                 _damage2.damage()
@@ -40,21 +40,21 @@ def get_func(func: str, *args):
         action.source.character.armor += 100
         action.source.character.defense += 5
     
-    def ascension_stairs(player: classes.Player, game: classes.Game):
+    def ascension_stairs(action: Action):
         _empty_pl = classes.Player(1013, -101, "None")
-        _damage = classes.Damage(_empty_pl, player)
+        _damage = classes.Damage(_empty_pl, action.source)
         _damage.is_hplost = True
-        _damage.damage_point = 0.1*player.character.max_hp
+        _damage.damage_point = 0.1*action.source.character.max_hp
         _damage.damage()
         _min = 6
         _max = 1
         _target = []
         # player.character.hp -= 0.1*player.character.max_hp
-        for pl in game.players.values():
-            if player.name != pl.name\
-                and pl.character.status.values() not in ["咕了"]\
-                and not (pl.character.status.values() in ["梦境"] and player.character.id == "卿别") :
+        for pl in action.game.players.values():
+            if pl.character.status.values() not in ["咕了"]\
+               and not (pl.character.status.values() in ["梦境"] and action.source.character.id == "卿别") :
                 _dice = dice(6, 1)
+                print(pl.name + str(_dice))
                 if _dice < _min: 
                     _min = _dice
                     _target = [pl]
@@ -62,7 +62,7 @@ def get_func(func: str, *args):
                 if _dice > _max: _max = _dice
         _dmg_point = _max * 50
         for pl2 in _target:
-            _damage2 = classes.Damage(player, pl2)
+            _damage2 = classes.Damage(action.source, pl2)
             _damage2.is_aoe = True
             _damage2.damage_point = _dmg_point
             _damage2.damage()
@@ -104,10 +104,10 @@ def get_func(func: str, *args):
     def camelias_drill(action: Action):
         action.source.character.hidden_status["_pre_drill"] = -1
 
-    def fragment(player: classes.Player, game: classes.Game, damage: classes.Damage):
-        player.character.hidden_status["frag"] = -1
-        damage.dmg_plus += 45
-        game.draw(player.name, 2)
+    def fragment(action: Action):
+        action.source.character.hidden_status["frag"] = -1
+        action.damage.dmg_plus += 45
+        action.game.draw(action.source.name, 2)
 
     def data(action: Action):
         for _s in action.source.skill.keys():
@@ -116,16 +116,15 @@ def get_func(func: str, *args):
             except KeyError:
                 action.source.skill[_s] = assets.PRIVATE_SKILL[_s]
 
-    def deterrent_radiance(player: classes.Player, game: classes.Game, damage: classes.Damage):
+    def deterrent_radiance(action: Action):
         _empty_pl = classes.Player(3496, -135, "None")
-        _damage = classes.Damage(_empty_pl, player)
+        _damage = classes.Damage(_empty_pl, action.source)
         _damage.ishplost = True
         _damage.damage_point = 50
         _damage.damage()
-        damage.isheal = True
-        damage.damage_point = 0
+        action.damage.is_det_rad == True
         # player.character.hp -= 50
-        for pl in game.players.values():
+        for pl in action.game.players.values():
             if dice(2) == 1:
                 pl.character.status["浴霸"] = 1
 
@@ -150,12 +149,12 @@ def get_func(func: str, *args):
     def spectral_arrow(action: Action):
         action.target.character.hidden_status["spectral"] = -1
     
-    def hologram(player: classes.Player, game: classes.Game, damage: classes.Damage):
-        damage.isheal = True
-        damage.damage_point = 0
-        _skill = game.choose_skill(player.name)
-        _cd = game.skill_deck.get(_skill)
-        player.skill[_skill] = _cd + 1
+    def hologram(action: Action):
+        action.damage.isheal = True
+        action.damage.damage_point = 0
+        _skill = action.game.choose_skill(action.source.name)
+        _cd = action.game.skill_deck.get(_skill)
+        action.source.skill[_skill] = _cd + 1
 
     def pyrotheum(action: Action):
         action.target.character.status["熔岩之触"] = 3
@@ -215,28 +214,35 @@ def get_func(func: str, *args):
 
 
 class Action:
-    def __init__(self, source: classes.Player, target: classes.Player) -> None:
+    def __init__(self, source: classes.Player, target: classes.Player, game:classes.Game) -> None:
         self.source = source
         self.target = target
         self.damage = classes.Damage(self.source, self.target)
+        self.game = game
     
     def enforce(self, *cards: str):
         for _c in cards: get_func(_c)(self)
         self.damage.dice_multi()
+        self.damage.calculate()
         self.damage.damage()
-        
 
-def cast(source: classes.Player, target: classes.Player, skill: str):
+    def cast(self, skill: str):
         pass
 
-p1 = classes.Player(1)
-p2 = classes.Player(2,1)
-p1.set_character(['时雨',900,95,35,6,2,1,1])
-p2.set_character(['时雨',900,95,35,6,2,1,1])
-a = Action(p1,p2)
-a.enforce('终焉长戟')
-print(a.damage.source.character.attack)
-print(a.damage.target.character.defense)
+
+g1 = classes.Game('','',1,0)
+g1.add_player(1,'1')
+g1.add_player(2,'2')
+g1.add_player(3,'3')
+p1 = g1.players['1']
+p2 = g1.players['2']
+p3 = g1.players['3']
+p1.set_character(['时雨',1000,95,35,6,2,1,1])
+p2.set_character(['飖',1000,95,35,6,2,1,1])
+p3.set_character(['方寒',1000,95,35,6,2,1,1])
+a = Action(p1,p2,g1)
+a.enforce('紫水晶')
 print(a.damage.dice_point)
-print(a.damage.damage_point)
+print(p1.character.hp)
 print(p2.character.hp)
+print(p3.character.hp)

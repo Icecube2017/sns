@@ -3,12 +3,13 @@ import time
 import random
 
 from pathlib import Path
+from typing import Union
 from typing import List, Dict
 import assets, classes
 
 
 # 初始化游戏存档系统，记录已经进行/正在进行的游戏局次
-game_history: List[int or Dict[int, List[str]]] = [0, {0: ["000000-0000"]}]       # [已经进行/正在进行/中途取消的游戏场数, 群号:[局次id]]
+game_history: List[Union[int, Dict[int, List[str]]]] = [0, {0: ["000000-0000"]}]       # [已经进行/正在进行/中途取消的游戏场数, 群号:[局次id]]
 
 saves_path = Path(__file__).parent / "saves"                                     # 定义存档目录
 
