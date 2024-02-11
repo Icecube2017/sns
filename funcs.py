@@ -1,7 +1,23 @@
+# -*- coding:utf-8 -*-
+
+from typing import Dict, List
+
 import assets, classes
 
 
 dice = classes.dice
+
+
+def resolve_arg(arg: str) -> List[List[str]]:           # 字符串解析未完工
+    cards: List[str] = []
+    target: List[str] = []
+    rough_resolution:List[str] = arg.split()
+    if "to" in rough_resolution:
+        sep = rough_resolution.index("to")
+        cards = rough_resolution[:sep]
+        target = rough_resolution[sep+1:]
+    else:
+        pass
 
 
 def get_func(func: str, *args):
@@ -66,7 +82,6 @@ def get_func(func: str, *args):
             _damage2.is_aoe = True
             _damage2.damage_point = _dmg_point
             _damage2.damage()
-
 
     
     def critical_strike(action: Action):
@@ -202,25 +217,19 @@ def get_func(func: str, *args):
     def invisibility(action: Action):
         action.source.character.status["闪避"] = 2
 
-    funcs = {"末影水晶":end_crystal, "木剑": wood_sword, "英雄传说": hero_legend, "登神的长阶":ascension_stairs,
-    "无敌贯通":critical_strike, "盾牌": shield, "自疗": self_curing, "再生":regeneration, "力量药水":strength, 
-    "力量药水II":strength_ii, "六方棱":hexastal, "八重镜":octastal, "十面璃":decastal,"山茶花的电钻":camelias_drill,
-    "残片":fragment, "Data":data, "慑敌辉光":deterrent_radiance, "下界合金斧":netherite_axe,"红石":redstone, 
-    "纳米剑":nanosword, "栓绳":lead, "光灵箭":spectral_arrow, "全息投影":hologram,
-    "烈焰之炽焱":pyrotheum, "死神之息":breath_of_reaper, "极寒之凛冰":cryotheum, "心形挂坠盒": heart_locket, 
-    "堕灵吊坠": corrupt_pendant, "紫水晶":amethyst, "弓":bow, "追踪箭":tracking_arrow, "破甲箭":penetrating_arrow, 
-    "终焉长戟":end_halberd, "迟缓药水":slowness, "迅捷药水":swiftness, "隐身药水":invisibility}
+    with open("funcdict","r", encoding="utf-8") as f:
+        funcs: Dict[str, function] = eval(f.read())
     return funcs[func]
 
 
 class Action:
-    def __init__(self, source: classes.Player, target: classes.Player, game:classes.Game) -> None:
+    def __init__(self, game:classes.Game, source: classes.Player, target: classes.Player) -> None:
         self.source = source
         self.target = target
         self.damage = classes.Damage(self.source, self.target)
         self.game = game
     
-    def enforce(self, *cards: str):
+    def enforce(self, cards: list):
         for _c in cards: get_func(_c)(self)
         self.damage.dice_multi()
         self.damage.calculate()
@@ -230,7 +239,7 @@ class Action:
         pass
 
 
-g1 = classes.Game('','',1,0)
+'''g1 = classes.Game('','',1,0)
 g1.add_player(1,'1')
 g1.add_player(2,'2')
 g1.add_player(3,'3')
@@ -240,9 +249,9 @@ p3 = g1.players['3']
 p1.set_character(['时雨',1000,95,35,6,2,1,1])
 p2.set_character(['飖',1000,95,35,6,2,1,1])
 p3.set_character(['方寒',1000,95,35,6,2,1,1])
-a = Action(p1,p2,g1)
-a.enforce('紫水晶')
+a = Action(g1,p1,p2)
+a.enforce(['十面璃'])
 print(a.damage.dice_point)
 print(p1.character.hp)
 print(p2.character.hp)
-print(p3.character.hp)
+print(p3.character.hp)'''

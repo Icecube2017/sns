@@ -1,4 +1,6 @@
-import random, math
+# -*- coding:utf-8 -*-
+
+import random, math,time
 
 from typing import List, Dict
 
@@ -16,13 +18,15 @@ def dice(size: int, times: int = 1) -> int:
     return _d
 
 
+
 class Logger(object):
+    pass
     def __init__(self, level: str) -> None:
-        self.level = f"[{level.upper}]"
+        self.level = f"[{level.upper()}]"
 
     def __call__(self, func):
         def wrapper(*args, **kwargs):
-            print(self.level, func(*args, **kwargs))
+            print(self.level, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) , func(*args, **kwargs))
             return
         return wrapper
 
@@ -232,6 +236,7 @@ class Game:
         self.scene_on: bool = False  # 场景是否开启
         self.scene: str = ""  # 场景名称
 
+        self.deckname: str = ""
         self.deck: List[str] = []  # 摸牌堆
         self.discard: List[str] = []  # 出牌堆
         self.skill_deck: Dict[str, int] = {}  # 技能及已获取技能
@@ -382,6 +387,8 @@ class Game:
         for pl in self.players.values():
             if not pl.character.id:
                 return False, "还有玩家没选好角色呢"
+        if not self.deckname:
+            return False, "还没有选择卡包呢"
         if self.game_type == 0:
             pass
         elif self.game_type == 1:
@@ -397,7 +404,7 @@ class Game:
 
     def _init_game(self):
         _ret: Dict[str, dict] = {"group": "", "player": {}}
-        self.deck = assets.PROPCARD
+        self.deck = assets.get_propcard_list(self.deckname)
         random.shuffle(self.deck)
         self.game_sequence = [i for i in range(1, self.player_count + 1)]
         random.shuffle(self.game_sequence)

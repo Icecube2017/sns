@@ -1,6 +1,6 @@
-import pickle
-import time
-import random
+# -*- coding:utf-8 -*-
+
+import pickle, time, random, logging
 
 from pathlib import Path
 from typing import Union
@@ -153,7 +153,7 @@ def start_game(gid: int, player_name: str) -> dict:
 
 
 @log
-def play_card(gid: int, player_name: str, *args) -> dict:
+def play_card(gid: int, player_name: str, arg) -> dict:
     try:
         game_now = playing_games[gid]
     except KeyError:
@@ -164,6 +164,7 @@ def play_card(gid: int, player_name: str, *args) -> dict:
     _card: List[str] = []
 
 
+'''start_game(1000, "希尔")
 new_game(1000, "希尔", 1810940687, 1)
 join_game(1000, "Icecube", 1851556514)
 start_game(1000, "Icecube")
@@ -180,3 +181,4 @@ set_team(1000, "Icecube")
 set_team(1000, "Icecube", "1")
 set_team(1000, "Icecube")
 cancel_game(1000, "希尔")
+'''

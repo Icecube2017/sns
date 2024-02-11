@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 import json
 
 from pathlib import Path
@@ -7,9 +9,13 @@ from typing import List, Dict
 __ASSETS_PATH = Path(__file__).parent / "assets"
 
 
-def __get_file(file: str, suffix: str) -> str:
-    with open(__ASSETS_PATH / f"{file}.{suffix}", encoding="utf-8") as f:
-        return f.read()
+def __get_file(file: str, suffix: str = "") -> str:
+    if suffix:
+        with open(__ASSETS_PATH / f"{file}.{suffix}", encoding="utf-8") as f:
+            return f.read()
+    else:
+        with open(__ASSETS_PATH / f"{file}", encoding="utf-8") as f:
+            return f.read()
 
 
 # 以字典形式获取别名
@@ -48,7 +54,7 @@ CHARACTER = __get_character_list()
 
 
 # 加载牌堆
-def __get_propcard_list() -> list:
+def get_propcard_list(deckname: str) -> list:
     _prop: List[str] = []
     _f = __get_file("propcard", "txt").split("\n")
     for _ in _f:
@@ -57,7 +63,7 @@ def __get_propcard_list() -> list:
     return _prop
 
 
-PROPCARD = __get_propcard_list()
+# PROPCARD = __get_propcard_list()
 
 
 # 加载技能卡堆
