@@ -266,30 +266,61 @@ def get_func(func: str, *args):
     def benevolence(action: Action):
         pass
 
-
+    def phase_transition(action: Action):
+        pass
 
     with open("funcdict","r", encoding="utf-8") as f:
         funcs: Dict[str, function] = eval(f.read())
     return funcs[func]
 
+EMPTY_GAME = classes.Game('', '', 2, 0)
+EMPTY_PLAYER = classes.Player(0, 0, 'None')
 
 class Action:
     def __init__(self, game:classes.Game, source: classes.Player, \
-                 target: classes.Player = classes.Player(1675, -97, "None"), extra: list = []) -> None:
+                 target: classes.Player = EMPTY_PLAYER, cards: list = [], extra: list = []) -> None:
         self.game = game
         self.source = source
         self.target = target
         self.damage = Damage(self.source, self.target)
         self.extra = extra
-    
-    def enforce(self, cards: list):
         for _c in cards: get_func(_c)(self)
         self.damage.dice_multi()
         self.damage.calculate()
+    
+    def enforce(self):
         self.damage.damage()
 
+
+EMPTY_ACTION = Action(EMPTY_GAME, EMPTY_PLAYER)
+
+
+class Skill:
+    def __init__(self,game:classes.Game, source: classes.Player, target: classes.Player = EMPTY_PLAYER, extra: list = []) -> None:
+        self.game = game
+        self.source = source
+        self.target = target
+        self.extra = extra
+        self.is_silenced = False
+    
     def cast(self, skill: str):
-        get_func(skill)(self)
+        if not self.is_silenced:
+            get_func(skill)(self)
+
+
+class Skill_Action(Skill):
+    def __init__(self, game: classes.Game, source: classes.Player, target: classes.Player = EMPTY_PLAYER, action: Action = EMPTY_ACTION, extra: List = []) -> None:
+        super().__init__(game, source, target, extra)
+        self.action = action
+    
+
+class Skill_Silence(Skill):
+    def __init__(self, game: classes.Game, source: classes.Player, skill:Skill, target: classes.Player = EMPTY_PLAYER, extra: List = []) -> None:
+        super().__init__(game, source, target, extra)
+        self.skill = skill
+    
+    def cast(self):
+        self.skill.is_silenced = True
 
 
 g1 = classes.Game('','',1,0)

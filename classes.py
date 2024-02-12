@@ -111,7 +111,7 @@ class Player:
         return True if card in self.card else False
 
     def set_character(self, c: list) -> str:  # 设置玩家角色
-        self.character = Character(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7])
+        self.character = Character(*c)
         if c[0] == "洛尔":
             self.character.attack = 60 + dice(4, 2) * 5
             self.character.defense = 25 + dice(6) * 5
