@@ -145,51 +145,6 @@ class Player:
 class Scene:
     pass
 """
-
-
-class Damage:
-    def __init__(self, source: Player, target: Player) -> None:
-        self.damage_point: int = 0
-        self.source: Player = source
-        self.target: Player = target
-        self.is_aoe: bool = False
-        self.is_pierce: bool = False
-        self.is_hplost: bool = False
-        self.is_heal: bool = False
-        self.is_det_rad = False
-        self.dice_size: int = 4
-        self.dice_point: int = 1
-        self.atk_plus: int = 0
-        self.atk_multi: int = 1
-        self.dmg_plus: int = 0
-        self.dmg_multi: int = 1
-
-    def dice_multi(self):
-        self.dice_point = dice(self.dice_size, 1)
-
-    def calculate(self):
-        self.damage_point = (((self.atk_plus + self.source.character.attack) * self.atk_multi - self.target.character.defense) * self.dice_point + self.dmg_plus) * self.dmg_multi
-
-    def damage(self):
-        if self.is_det_rad == True:
-            self.damage_point = 0
-            return
-        if self.is_aoe == True:
-            if self.target.character.id in ['奈普斯特', "格白"]:
-                return
-        if self.is_pierce == False:
-            pass
-        if self.is_hplost == True:
-            self.target.character.hp -= self.damage_point
-            return
-        if self.is_heal == True:
-            self.target.character.hp += self.damage_point
-        else:
-            #print(self.target.character.hp)
-            self.target.character.hp -= self.damage_point
-            #print(self.target.character.hp)
-            #print(self.damage_point)
-            return
         
 
 # 定义boss类
@@ -451,6 +406,6 @@ class Game:
     def play_card(self, player_name: str, target_name: str):
         _pl = self.players[player_name]
         _tg = self.players[target_name]
-        _damage = Damage(_pl, _tg)
+        '''_damage = Damage(_pl, _tg)
         if _damage.is_heal is False:
-            _damage.calculate()
+            _damage.calculate()'''
